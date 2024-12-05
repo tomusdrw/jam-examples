@@ -1,0 +1,125 @@
+// Game of Life
+
+// Display 8x8 memory cells
+// First row 0x0...0x8
+// Second row 0x8..0xf
+// Third row 0xf..
+// ...
+// Eight row 0x38...0x40
+// Cell location `row * 8 + col`
+
+%rw_data_size = 768
+%rw_data = 000000
+
+pub @expected_exit:
+pub @main:
+  u8 [3] = 0xff 
+  u8 [11] = 0xff 
+  u8 [19] = 0xff 
+  u8 [18] = 0xff 
+  u8 [9] = 0xff 
+  jump @copymem
+
+@life:
+  r1 = 8
+
+  @cols:
+  r1 = r1 - 1
+  jump @copymem if r1 == 0 
+  r2 = 8
+
+  @rows:
+  r2 = r2 - 1
+  jump @cols if r2 == 0 
+
+  r3 = r1 * 8
+  r3 = r3 + r2
+  jump @countneighbours
+  @decide:
+  // read value from memory (buffer)
+  r3 = r3 + 128
+  r4 = u8[r3]
+  // check if alive
+  r4 = r4 & 0x1
+  jump @decide_dead if r4 != 0x1
+  // decide if it should stay alive
+  jump @mark_dead if r5 <u 2
+  jump @mark_dead if r5 >u 3
+  jump @mark_alive
+
+  @decide_dead:
+  jump @mark_alive if r5 == 3
+  jump @mark_dead
+
+  @mark_alive:
+  r3 = r3 - 128
+  u8[r3] = 0xff
+  // loop
+  jump @rows
+
+  @mark_dead:
+  r3 = r3 - 128
+  u8[r3] = 0x00
+  // loop
+  jump @rows
+
+// Output r5 (count)
+// Input r3 (cell)
+// Work: r4
+@countneighbours:
+  // count neigbours
+  r5 = 0
+  // we are reading from the buffered memory
+  r4 = 128 + r3
+  // W
+  r4 = r4 - 1
+  r6 = u8[r4]
+  r6 = r6 & 0x1
+  r5 = r5 + r6
+  // E
+  r4 = r4 + 2
+  r6 = u8[r4]
+  r6 = r6 & 0x1
+  r5 = r5 + r6
+  // N
+  r4 = r4 - 9
+  r6 = u8[r4]
+  r6 = r6 & 0x1
+  r5 = r5 + r6
+  // S
+  r4 = r4 + 16
+  r6 = u8[r4]
+  r6 = r6 & 0x1
+  r5 = r5 + r6
+  // SE
+  r4 = r4 + 1
+  r6 = u8[r4]
+  r6 = r6 & 0x1
+  r5 = r5 + r6
+  // SW 
+  r4 = r4 - 2
+  r6 = u8[r4]
+  r6 = r6 & 0x1
+  r5 = r5 + r6
+  // NW
+  r4 = r4 - 16
+  r6 = u8[r4]
+  r6 = r6 & 0x1
+  r5 = r5 + r6
+  // NE
+  r4 = r4 + 2
+  r6 = u8[r4]
+  r6 = r6 & 0x1
+  r5 = r5 + r6
+  jump @decide
+
+// Copy the memory to a temporary buffer
+@copymem:
+  r1 = 0
+  @copymemloop:
+  r3 = r1 + 128
+  r2 = u8[r1]
+  u8[r3] = r2
+  r1 = r1 + 1
+  jump @life if r1 == 64
+  jump @copymemloop
