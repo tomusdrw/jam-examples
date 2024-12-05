@@ -11,6 +11,8 @@
 %rw_data_size = 768
 %rw_data = 000000
 
+pre: gas=10000000
+
 pub @expected_exit:
 pub @main:
   u8 [3] = 0xff 
@@ -21,16 +23,16 @@ pub @main:
   jump @copymem
 
 @life:
-  r1 = 8
+  r1 = -1
 
   @cols:
-  r1 = r1 - 1
-  jump @copymem if r1 == 0 
-  r2 = 8
+  r1 = r1 + 1
+  jump @copymem if r1 == 8
+  r2 = -1
 
   @rows:
-  r2 = r2 - 1
-  jump @cols if r2 == 0 
+  r2 = r2 + 1
+  jump @cols if r2 == 8
 
   r3 = r1 * 8
   r3 = r3 + r2
