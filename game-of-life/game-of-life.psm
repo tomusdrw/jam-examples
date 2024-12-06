@@ -67,50 +67,74 @@ pub @main:
 
 // Output r5 (count)
 // Input r3 (cell)
-// Work: r4
+// Work: r4,r7,r8
 @countneighbours:
   // count neigbours
   r5 = 0
-  // we are reading from the buffered memory
-  r4 = 128 + r3
+  r4 = r3
+  r8 = 64
   // W
   r4 = r4 - 1
-  r6 = u8[r4]
+  // wrap & read from buffer
+  r7 = r4 %u r8
+  r7 = r7 + 128
+  r6 = u8[r7]
   r6 = r6 & 0x1
   r5 = r5 + r6
   // E
   r4 = r4 + 2
-  r6 = u8[r4]
+  // wrap & read from buffer
+  r7 = r4 %u r8
+  r7 = r7 + 128
+  r6 = u8[r7]
   r6 = r6 & 0x1
   r5 = r5 + r6
   // N
   r4 = r4 - 9
-  r6 = u8[r4]
+  // wrap & read from buffer
+  r7 = r4 %u r8
+  r7 = r7 + 128
+  r6 = u8[r7]
   r6 = r6 & 0x1
   r5 = r5 + r6
   // S
   r4 = r4 + 16
-  r6 = u8[r4]
+  // wrap & read from buffer
+  r7 = r4 %u r8
+  r7 = r7 + 128
+  r6 = u8[r7]
   r6 = r6 & 0x1
   r5 = r5 + r6
   // SE
   r4 = r4 + 1
-  r6 = u8[r4]
+  // wrap & read from buffer
+  r7 = r4 %u r8
+  r7 = r7 + 128
+  r6 = u8[r7]
   r6 = r6 & 0x1
   r5 = r5 + r6
   // SW 
   r4 = r4 - 2
-  r6 = u8[r4]
+  // wrap & read from buffer
+  r7 = r4 %u r8
+  r7 = r7 + 128
+  r6 = u8[r7]
   r6 = r6 & 0x1
   r5 = r5 + r6
   // NW
   r4 = r4 - 16
-  r6 = u8[r4]
+  // wrap & read from buffer
+  r7 = r4 %u r8
+  r7 = r7 + 128
+  r6 = u8[r7]
   r6 = r6 & 0x1
   r5 = r5 + r6
   // NE
   r4 = r4 + 2
-  r6 = u8[r4]
+  // wrap & read from buffer
+  r7 = r4 %u r8
+  r7 = r7 + 128
+  r6 = u8[r7]
   r6 = r6 & 0x1
   r5 = r5 + r6
   jump @decide
