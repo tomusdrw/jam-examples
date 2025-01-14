@@ -12,6 +12,6 @@ description = "A JAM authorizer which always authorizes"
 workspace = true
 
 [dependencies]
-jam-types = { path = "../../crates/jam-types", version = "0.1.8", default-features = false }
-jam-pvm-common = { path = "../../crates/jam-pvm-common", version = "0.1.8", default-features = false, features = ["logging", "authorizer"] }
+jam-types = { path = "../../crates/jam-types", version = "0.1.9", default-features = false }
+jam-pvm-common = { path = "../../crates/jam-pvm-common", version = "0.1.9", default-features = false, features = ["logging", "authorizer"] }
 polkavm-derive = { workspace = true }

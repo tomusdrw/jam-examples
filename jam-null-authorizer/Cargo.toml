@@ -12,7 +12,7 @@
 [package]
 edition = "2021"
 name = "jam-null-authorizer"
-version = "0.1.8"
+version = "0.1.9"
 authors = ["Parity Technologies <admin@parity.io>"]
 build = false
 publish = true
@@ -30,7 +30,7 @@ name = "jam-null-authorizer"
 path = "src/main.rs"
 
 [dependencies.jam-pvm-common]
-version = "0.1.8"
+version = "0.1.9"
 features = [
     "logging",
     "authorizer",
@@ -38,11 +38,11 @@ features = [
 default-features = false
 
 [dependencies.jam-types]
-version = "0.1.8"
+version = "0.1.9"
 default-features = false
 
 [dependencies.polkavm-derive]
-version = "0.16.0"
+version = "0.18.0"
 
 [lints.clippy]
 new_without_default = "allow"

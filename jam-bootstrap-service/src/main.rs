@@ -45,9 +45,9 @@ impl jam_pvm_common::Service for Service {
 					info!(target = "boot", "Looking up...");
 					let maybe_data = foreign_lookup(service, &hash);
 					info!(target = "boot", "Got {:?}", maybe_data);
-					out.push(maybe_data.map_or(Instruction::Lookup { service, hash }, |data| {
-						Instruction::LookedUp { data }
-					}));
+					if let Some(data) = maybe_data {
+						out.push(Instruction::LookedUp { data });
+					}
 				},
 				Instruction::RandomStorageRefine(input) =>
 					out.push(Instruction::RandomStorageAccumulate(
@@ -73,8 +73,8 @@ impl jam_pvm_common::Service for Service {
 		info!(target = "boot", "Returning {:?} into accumulate", out);
 		out.encode().into()
 	}
-	fn accumulate(slot: Slot, _id: ServiceId, results: Vec<AccumulateItem>) {
-		info!(target = "boot", "slot ${slot}; balance = {}", my_info().balance);
+	fn accumulate(now: Slot, _id: ServiceId, results: Vec<AccumulateItem>) -> Option<Hash> {
+		info!(target = "boot", "slot ${now}; balance = {}", my_info().balance);
 		for raw_instructions in results.into_iter().filter_map(|x| x.result.ok()) {
 			for inst in Vec::<Instruction>::decode(&mut &raw_instructions[..]).unwrap() {
 				info!(target = "boot", "Decoded instruction: {:?}", inst);
@@ -111,6 +111,43 @@ impl jam_pvm_common::Service for Service {
 						(destination, amount, memo)
 							.using_encoded(|d| set_storage(b"transferred", d).expect("balance?"));
 					},
+					Instruction::Zombify { ejector } => {
+						info!(target = "boot", "Zombifying service. Ejector: #{:x}", ejector);
+						let info = my_info();
+						if info.bytes >= 81 && info.items == 2 {
+							if forget(&info.code_hash, info.bytes as usize - 81).is_ok() {
+								zombify(ejector);
+								info!(target = "boot", "Zombified");
+							} else {
+								error!("Failed to zombify - invalid code_hash?");
+							}
+						} else {
+							error!("Failed to zombify - laggards in storage/lookup?");
+						}
+					},
+					Instruction::Eject { target, code_hash } => {
+						info!(
+							target = "boot",
+							"Ejecting service #{:x} with code_hash {:?}", target, code_hash
+						);
+						let e = eject(target, &code_hash);
+						info!(target = "boot", "Result: {:?}", e);
+					},
+					Instruction::DeleteItems { storage_items } => {
+						let mut fail = 0;
+						for i in &storage_items {
+							info!(target = "boot", "Deleting item: {:?}", i);
+							if remove_storage(i).is_none() {
+								error!("Failed to remove item: {:?}", i);
+								fail += 1;
+							}
+						}
+						info!(
+							"{} items deleted successfully, {} keys not found",
+							storage_items.len() - fail,
+							fail
+						);
+					},
 					Instruction::LookedUp { data } => {
 						set_storage(b"looked_up", &data[..]).expect("balance?");
 					},
@@ -131,6 +168,13 @@ impl jam_pvm_common::Service for Service {
 						set_storage(b"requested", &hash[..]).expect("balance?");
 					},
 					Instruction::Forget { hash, len } => {
+						let q = query(&hash, len as usize).unwrap();
+						info!(
+							target = "boot",
+							"Query result: {:?} (fi: {:?})",
+							q,
+							q.forget_implication(now)
+						);
 						forget(&hash, len as usize).unwrap();
 						set_storage(b"unrequested", &hash[..]).expect("balance?");
 					},
@@ -151,6 +195,17 @@ impl jam_pvm_common::Service for Service {
 					Instruction::Designate { keys } => {
 						designate(&keys);
 						info!(target = "boot", "Designated keys {:?}", keys);
+					},
+					Instruction::Yield { hash } => {
+						yield_hash(&hash);
+						info!(target = "boot", "Yielded hash {:?}", hash);
+					},
+					Instruction::Checkpoint => {
+						checkpoint();
+						info!(target = "boot", "Checkpointed!");
+					},
+					Instruction::Panic => {
+						panic!("Panic instruction executed!");
 					},
 					Instruction::RandomStorageAccumulate(result_refine) => {
 						if let Ok(keys) = result_refine {
@@ -173,6 +228,7 @@ impl jam_pvm_common::Service for Service {
 				}
 			}
 		}
+		None
 	}
 
 	fn on_transfer(_slot: Slot, _id: ServiceId, items: Vec<TransferRecord>) {
