@@ -9,8 +9,8 @@ pub struct Game {
 pub struct XY(usize, usize);
 
 pub enum Mutation {
-  On(XY),
-  Off(XY),
+    On(XY),
+    Off(XY),
 }
 
 impl Game {
@@ -57,14 +57,14 @@ impl Game {
             (-1, -1),
             (-1, 0),
             (-1, 1),
-        ].iter()
-            .map(|&(mod_x, mod_y)| {
+        ]
+        .iter()
+        .map(|&(mod_x, mod_y)| {
+            let n_x = (pos.0 as i32 + mod_x) % self.size as i32;
+            let n_y = (pos.1 as i32 + mod_y) % self.size as i32;
 
-                let n_x = (pos.0 as i32 + mod_x) % self.size as i32;
-                let n_y = (pos.1 as i32 + mod_y) % self.size as i32;
-
-                (n_x as usize, n_y as usize)
-            })
+            (n_x as usize, n_y as usize)
+        })
         .filter(|&(n_x, n_y)| {
             let is_alive = self.board[n_x][n_y];
             is_alive
