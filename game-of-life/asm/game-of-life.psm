@@ -1,12 +1,12 @@
 // Game of Life
 
 // Display 8x8 memory cells
-// First row 0x0...0x8
-// Second row 0x8..0xf
-// Third row 0xf..
+// First row 0x10000...0x10008
+// Second row 0x10008..0x1000f
+// Third row 0x1000f..
 // ...
-// Eight row 0x38...0x40
-// Cell location `row * 8 + col`
+// Eight row 0x10038...0x10040
+// Cell location `0x10000 + row * 8 + col`
 
 %rw_data_size = 768
 %rw_data = 000000
@@ -15,11 +15,11 @@ pre: gas=10000000
 
 pub @expected_exit:
 pub @main:
-  u8 [3] = 0xff 
-  u8 [11] = 0xff 
-  u8 [19] = 0xff 
-  u8 [18] = 0xff 
-  u8 [9] = 0xff 
+  u8 [0x10003] = 0xff 
+  u8 [0x1000b] = 0xff 
+  u8 [0x10013] = 0xff 
+  u8 [0x10012] = 0xff 
+  u8 [0x10009] = 0xff 
   jump @copymem
 
 @life:
@@ -35,6 +35,7 @@ pub @main:
   jump @cols if r2 == 8
 
   r3 = r1 * 8
+  r3 = r3 + 0x10000
   r3 = r3 + r2
   jump @countneighbours
   @decide:
@@ -77,6 +78,7 @@ pub @main:
   r4 = r4 - 1
   // wrap & read from buffer
   r7 = r4 %u r8
+  r7 = r7 + 0x10000
   r7 = r7 + 128
   r6 = u8[r7]
   r6 = r6 & 0x1
@@ -85,6 +87,7 @@ pub @main:
   r4 = r4 + 2
   // wrap & read from buffer
   r7 = r4 %u r8
+  r7 = r7 + 0x10000
   r7 = r7 + 128
   r6 = u8[r7]
   r6 = r6 & 0x1
@@ -93,6 +96,7 @@ pub @main:
   r4 = r4 - 9
   // wrap & read from buffer
   r7 = r4 %u r8
+  r7 = r7 + 0x10000
   r7 = r7 + 128
   r6 = u8[r7]
   r6 = r6 & 0x1
@@ -101,6 +105,7 @@ pub @main:
   r4 = r4 + 16
   // wrap & read from buffer
   r7 = r4 %u r8
+  r7 = r7 + 0x10000
   r7 = r7 + 128
   r6 = u8[r7]
   r6 = r6 & 0x1
@@ -109,6 +114,7 @@ pub @main:
   r4 = r4 + 1
   // wrap & read from buffer
   r7 = r4 %u r8
+  r7 = r7 + 0x10000
   r7 = r7 + 128
   r6 = u8[r7]
   r6 = r6 & 0x1
@@ -117,6 +123,7 @@ pub @main:
   r4 = r4 - 2
   // wrap & read from buffer
   r7 = r4 %u r8
+  r7 = r7 + 0x10000
   r7 = r7 + 128
   r6 = u8[r7]
   r6 = r6 & 0x1
@@ -125,6 +132,7 @@ pub @main:
   r4 = r4 - 16
   // wrap & read from buffer
   r7 = r4 %u r8
+  r7 = r7 + 0x10000
   r7 = r7 + 128
   r6 = u8[r7]
   r6 = r6 & 0x1
@@ -133,6 +141,7 @@ pub @main:
   r4 = r4 + 2
   // wrap & read from buffer
   r7 = r4 %u r8
+  r7 = r7 + 0x10000
   r7 = r7 + 128
   r6 = u8[r7]
   r6 = r6 & 0x1
@@ -141,11 +150,11 @@ pub @main:
 
 // Copy the memory to a temporary buffer
 @copymem:
-  r1 = 0
+  r1 = 0x10000
   @copymemloop:
   r3 = r1 + 128
   r2 = u32[r1]
   u32[r3] = r2
   r1 = r1 + 4
-  jump @life if r1 == 64
+  jump @life if r1 == 0x10064
   jump @copymemloop
