@@ -9,7 +9,8 @@
 extern crate alloc;
 
 use game::Game;
-use jam_pvm_common::{accumulate::*, *};
+use jam_pvm_common::accumulate::{get_storage, set_storage};
+use jam_pvm_common::*;
 use jam_types::*;
 
 mod game;
@@ -25,19 +26,20 @@ const SIZE_ENTRY: &[u8] = b"size";
 const BOARD_ENTRY: &[u8] = b"board";
 
 impl jam_pvm_common::Service for Service {
-    fn refine(
-        _id: ServiceId,
-        _payload: WorkPayload,
-        _package_info: PackageInfo,
-        _extrinsics: Vec<Vec<u8>>,
-    ) -> WorkOutput {
-        todo!()
-    }
+	fn refine(
+		_core_index: CoreIndex,
+		_item_index: usize,
+		_id: ServiceId,
+		_payload: WorkPayload,
+		_package_hash: WorkPackageHash,
+	) -> WorkOutput {
+		todo!()
+	}
 
-    fn accumulate(now: Slot, id: ServiceId, _results: Vec<AccumulateItem>) -> Option<Hash> {
-        info!(
-            target = "boot",
-            "Executing acumulate at #{now} for service #{id}"
+	fn accumulate(now: Slot, id: ServiceId, _item_count: usize) -> Option<Hash> {
+		info!(
+			target = "boot",
+			"Executing acumulate at #{now} for service #{id}"
         );
         let steps = now;
         let size = match get_storage(SIZE_ENTRY) {
@@ -61,19 +63,6 @@ impl jam_pvm_common::Service for Service {
         set_storage(SIZE_ENTRY, &size.to_le_bytes()).expect("size");
         set_storage(BOARD_ENTRY, &game.export()).expect("board");
 
-        None
-    }
-
-    fn on_transfer(_slot: Slot, _id: ServiceId, _items: Vec<TransferRecord>) {
-        // TODO [ToDr] an idea for a demo:
-        // 1. We use storage as display for GoL
-        // 2. by sending `on_transfer` calls you can configure game parameters (board size?)
-        // 3. The storage is updated every refine call.
-        // 4. In refine we copy the storage to memory and perform as many steps as we can
-        // 5. We might need to check the gas left to make sure we are able to sync the mem back to
-        //    storage or use some storage item that tells us how many steps to perform.
-        //
-        // PVM debugger could have a special UI to display the storage as a board and
-        // a special UI to send on_transfers for configuration.
-    }
+		None
+	}
 }
