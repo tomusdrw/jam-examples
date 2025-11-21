@@ -24,20 +24,16 @@ description = "Game of Life as PVM benchmark"
 readme = "README.md"
 license = "Apache-2.0"
 
-[[bin]]
-name = "jam-game-of-life"
-path = "src/main.rs"
-
 [dependencies.bounded-collections]
-version = "0.2.0"
+version = "0.3.2"
 default-features = false
 
 [dependencies.jam-bootstrap-service-common]
-version = "0.1.9"
+version = "0.1.26"
 default-features = false
 
 [dependencies.jam-pvm-common]
-version = "0.1.9"
+version = "0.1.26"
 features = [
     "service",
     "logging",
@@ -45,14 +41,14 @@ features = [
 default-features = false
 
 [dependencies.jam-types]
-version = "0.1.9"
+version = "0.1.26"
 default-features = false
 
 [dependencies.polkavm-derive]
-version = "0.18.0"
+version = "0.30.0"
 
 [dependencies.scale]
-version = "3.6.12"
+version = "3.7.5"
 features = ["derive"]
 default-features = false
 package = "parity-scale-codec"
