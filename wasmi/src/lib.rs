@@ -1,8 +1,4 @@
 //! JAM WASMI Service
-//!
-//! Provides a no_std-friendly wrapper around the `wasmi` interpreter so that a JAM
-//! service can execute WASM blobs either embedded in the service binary or supplied
-//! through work item payloads.
 
 #![cfg_attr(any(target_arch = "riscv32", target_arch = "riscv64"), no_std)]
 #![allow(clippy::unwrap_used)]
@@ -200,7 +196,6 @@ mod wasm_runtime {
         host_state: host::HostArgs,
     ) -> Result<host::HostArgs, wasmi::Error> {
         let config = Config::default();
-        // Clone and tweak `config` if you need deterministic-only mode, fuel metering, etc.
         let engine = Engine::new(&config);
         let module = Module::new(&engine, program)?;
         let mut linker = Linker::new(&engine);
