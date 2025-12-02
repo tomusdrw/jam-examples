@@ -60,8 +60,8 @@ impl Game {
         ]
         .iter()
         .map(|&(mod_x, mod_y)| {
-            let n_x = (pos.0 as i32 + mod_x) % self.size as i32;
-            let n_y = (pos.1 as i32 + mod_y) % self.size as i32;
+            let n_x = ((pos.0 as i32 + mod_x) as usize) % self.size;
+            let n_y = ((pos.1 as i32 + mod_y) as usize) % self.size;
 
             (n_x as usize, n_y as usize)
         })

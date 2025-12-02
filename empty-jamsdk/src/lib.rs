@@ -21,7 +21,7 @@ impl jam_pvm_common::Service for Service {
         _package_hash: WorkPackageHash,
     ) -> WorkOutput {
         info!("Empty Service Refine, {service_id:x}h");
-        vec![].into()
+        alloc::vec![].into()
     }
 
     fn accumulate(now: Slot, id: ServiceId, _item_count: usize) -> Option<Hash> {

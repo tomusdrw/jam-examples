@@ -1,9 +1,4 @@
-//! JAM Bootstrap Service
-//!
-//! Use by concatenating one or more encoded `Instruction`s into a work item's payload.
-
 #![cfg_attr(any(target_arch = "riscv32", target_arch = "riscv64"), no_std)]
-#![cfg_attr(any(target_arch = "riscv32", target_arch = "riscv64"), no_main)]
 #![allow(clippy::unwrap_used)]
 
 extern crate alloc;
@@ -14,9 +9,6 @@ use jam_pvm_common::*;
 use jam_types::*;
 
 mod game;
-
-#[cfg(not(any(target_arch = "riscv32", target_arch = "riscv64")))]
-fn main() {}
 
 #[allow(dead_code)]
 struct Service;
@@ -37,10 +29,7 @@ impl jam_pvm_common::Service for Service {
 	}
 
 	fn accumulate(now: Slot, id: ServiceId, _item_count: usize) -> Option<Hash> {
-		info!(
-			target = "boot",
-			"Executing acumulate at #{now} for service #{id}"
-        );
+		info!("Executing acumulate at #{now} for service #{id}");
         let steps = now;
         let size = match get_storage(SIZE_ENTRY) {
             Some(v) => {
@@ -50,11 +39,14 @@ impl jam_pvm_common::Service for Service {
             }
             None => 8,
         };
+        info!("Got board size: {size}");
+        assert!(size > 0, "Size cannot be empty");
         let mut game = match get_storage(BOARD_ENTRY) {
             Some(v) if v.len() as u32 == size * size => Game::new(size, &v),
             _ => Game::empty(size),
         };
 
+        info!("Performing: {steps}");
         for _i in 0..steps {
             let mutations = game.next_step();
             game.mutate(&mutations);
