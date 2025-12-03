@@ -29,7 +29,7 @@ impl jam_pvm_common::Service for Service {
 	}
 
 	fn accumulate(now: Slot, id: ServiceId, _item_count: usize) -> Option<Hash> {
-		info!("Executing acumulate at #{now} for service #{id}");
+		info!("Executing accumulate at #{now} for service #{id}");
         let steps = now;
         let size = match get_storage(SIZE_ENTRY) {
             Some(v) => {
