@@ -1,0 +1,3 @@
+[submodule "jambrains-sdk"]
+	path = jambrains-sdk
+	url = https://github.com/JamBrains/service-sdk.git
