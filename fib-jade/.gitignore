@@ -1,0 +1,5 @@
+*.jam
+target/
+.DS_Store
+logs/
+config/jammin.test.config.ts

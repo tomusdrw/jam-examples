@@ -1,0 +1,4 @@
+services:
+  - path: services/example
+    name: example
+    sdk: jade-0.0.15-pre.1
